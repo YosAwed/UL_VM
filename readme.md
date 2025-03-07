@@ -52,3 +52,57 @@ INDEXING          TryMeElse L,num
                   switchOnVar R,L1,L2
 ```
                   
+コンパイルコードの例
+
+```
+;sample 4 cut operation test
+; last call optimization
+; Pal source program
+(as (p *x *y)(q *z *w)(r *x *y))
+
+(as (q *x *q)(s *y *z)(cut)(t *x)
+(as (q *x *y)(t *x))
+
+(as (s a b))
+(as (t k))
+(as (r u v))
+; Compile-code for WAE
+(label (p 2))
+ (alloc)
+ (getVar 1 2)
+ (getVar 2 3)
+ (putVar 1 4)
+ (putVar 2 5)
+ (call (q 2) 6)
+ (putVal 1 2)
+ (putVal 2 3)
+ (dealloc)
+ (exec (r 2))
+(label (q 2))
+ (getTBreg 3)
+ (tryMeElse 3 (q 2 2))
+ (alloc)
+ (getVar 3 5)   ;for Breg
+ (getVar 1 2)
+ (putVar 1 3)
+ (putVar 2 4)
+ (call (s 2) 6)
+ (putBreg 5)
+ (putVal 1 2)
+ (dealloc)
+ (exec (t 1))
+(label (q 2 2))
+ (trustMeElseFail 3)
+ (exec (t 1))
+(label (s 2))
+ (getSymCon 1 a)
+ (getSymCon 2 b)
+ (proceed)
+(label (t 1))
+ (getSymCon 1 k)
+ (proceed)
+(label (r 2))
+ (getSymCon 1 u)
+ (getSymCon 2 v)
+ (proceed)
+```
